@@ -22,6 +22,47 @@ export interface LessonSection {
   }
 }
 
+export type LearningVisual =
+  | 'token-mask'
+  | 'preference-pair'
+  | 'rlhf-loop'
+  | 'ppo-clip'
+  | 'dpo-margin'
+  | 'grpo-group'
+  | 'agent-loop'
+  | 'harness-stack'
+  | 'trajectory-credit'
+  | 'eval-stack'
+  | 'memory-budget'
+  | 'distillation'
+
+export interface LearningStep {
+  title: string
+  detail: string
+}
+
+export interface CodeWalkthrough {
+  title: string
+  language: 'python' | 'typescript' | 'json' | 'yaml' | 'bash'
+  code: string
+  notes: string[]
+}
+
+export interface LessonGuide {
+  plain: string
+  analogy: string
+  why: string
+  steps: LearningStep[]
+  code: CodeWalkthrough
+  visual?: LearningVisual
+}
+
+export interface ChapterGuide {
+  plainDefinition: string
+  roleInPipeline: string
+  learningArc: string[]
+}
+
 export interface Lesson {
   id: string
   title: string
@@ -31,6 +72,7 @@ export interface Lesson {
   objectives: string[]
   sections: LessonSection[]
   takeaway: string
+  guide?: LessonGuide
 }
 
 export interface Chapter {
@@ -41,6 +83,7 @@ export interface Chapter {
   subtitle: string
   color: 'green' | 'orange' | 'blue' | 'red'
   lessons: Lesson[]
+  guide?: ChapterGuide
 }
 
 export interface QuizQuestion {

@@ -31,6 +31,16 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages
+
+仓库已包含 `.github/workflows/deploy-pages.yml`。推送到 `main` 后，GitHub Actions 会自动构建并部署 `dist`。
+
+首次使用时，在仓库中打开 `Settings → Pages`，将 `Build and deployment` 的 Source 设为 `GitHub Actions`。部署完成后可访问：
+
+```text
+https://chenzd-code.github.io/PostTrain-Lab/
+```
+
 ## AI 学习导师
 
 在网页的“AI 学习导师”页面中配置：

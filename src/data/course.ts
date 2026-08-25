@@ -1,4 +1,5 @@
 import type { Chapter, Concept, Paper } from '../types'
+import { chapterGuides, lessonGuides } from './lessonGuides'
 import {
   additionalPapers,
   agentFoundationsChapter,
@@ -386,7 +387,7 @@ const corePapers: Paper[] = [
   { title: 'The Landscape of Agentic Reinforcement Learning for LLMs', year: '2025', stage: 'Survey', why: '从单轮 LLM-RL 到多步 POMDP 的系统综述', url: 'https://arxiv.org/abs/2509.02547' },
 ]
 
-export const chapters: Chapter[] = [
+const assembledChapters: Chapter[] = [
   { ...coreChapters[0], index: 1, lessons: [...coreChapters[0].lessons, ...sftAdvancedLessons] },
   { ...coreChapters[1], index: 2, lessons: [...coreChapters[1].lessons, ...preferenceAdvancedLessons] },
   { ...coreChapters[2], index: 3, lessons: [...coreChapters[2].lessons, ...rlhfAdvancedLessons] },
@@ -400,6 +401,15 @@ export const chapters: Chapter[] = [
   distillationChapter,
   { ...coreChapters[7], index: 12 },
 ]
+
+export const chapters: Chapter[] = assembledChapters.map(chapter => ({
+  ...chapter,
+  guide: chapterGuides[chapter.id],
+  lessons: chapter.lessons.map(lesson => ({
+    ...lesson,
+    guide: lessonGuides[lesson.id],
+  })),
+}))
 
 export const papers: Paper[] = [...corePapers, ...additionalPapers]
 

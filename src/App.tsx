@@ -10,7 +10,8 @@ import {
 } from 'lucide-react'
 import { chapters, concepts, papers, totalLessons, totalMinutes } from './data/course'
 import { comparisonRows, interviewQuestions, quizQuestions } from './data/questions'
-import type { Chapter, InterviewQuestion, Lesson, QuizQuestion } from './types'
+import { LearningVisual } from './components/LearningVisuals'
+import type { Chapter, CodeWalkthrough, InterviewQuestion, Lesson, LessonGuide, QuizQuestion } from './types'
 
 type View = 'dashboard' | 'curriculum' | 'concepts' | 'compare' | 'practice' | 'interview' | 'tutor' | 'resources'
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
@@ -203,14 +204,43 @@ function Curriculum({ selectedChapterId, selectedLessonId, setChapter, setLesson
     <article className="lesson-page">
       <div className="lesson-topline"><span>第 {chapter.index} 章 · {chapter.shortTitle}</span><span>{currentIndex+1} / {totalLessons}</span></div>
       <h1>{lesson.title}</h1><p className="lesson-lead">{lesson.summary}</p>
-      <div className="lesson-meta"><span className={`difficulty ${lesson.difficulty}`}>{lesson.difficulty}</span><span><Clock3 size={15}/>{lesson.duration} 分钟</span><span><BookOpen size={15}/>{lesson.sections.length} 个知识单元</span></div>
+      <div className="lesson-meta"><span className={`difficulty ${lesson.difficulty}`}>{lesson.difficulty}</span><span><Clock3 size={15}/>{lesson.duration} 分钟</span><span><BookOpen size={15}/>{lesson.sections.length + (lesson.guide ? 4 : 0)} 个学习环节</span></div>
+      {chapter.guide && <ChapterOrientation chapter={chapter} />}
+      {lesson.guide && <LessonPrimer guide={lesson.guide} />}
       <div className="objective-box"><div className="objective-icon"><Target size={19}/></div><div><strong>完成本节后，你应该能够</strong><ul>{lesson.objectives.map(item=><li key={item}>{item}</li>)}</ul></div></div>
+      {lesson.guide?.visual && <LearningVisual kind={lesson.guide.visual} />}
+      {lesson.guide && <CodeWalkthroughPanel walkthrough={lesson.guide.code} />}
+      <div className="deep-dive-divider"><span>DEEP DIVE</span><h2>带着直觉进入原理与工程细节</h2><p>前面的白话、过程和代码已经给出整体地图；下面逐点解释为什么这样做，以及什么情况下会失效。</p></div>
       {lesson.sections.map((section,idx)=><section className="lesson-section" key={section.title}><span className="section-number">{String(idx+1).padStart(2,'0')}</span><div className="section-copy"><h2>{section.title}</h2>{section.paragraphs.map((p,i)=><p key={i}>{p}</p>)}{section.bullets && <ul className="knowledge-list">{section.bullets.map(b=><li key={b}><CheckCircle2 size={16}/><span>{b}</span></li>)}</ul>}{section.formula && <FormulaBlock expression={section.formula} label={section.formulaLabel} note={section.formulaNote}/>} {section.code && <pre className="code-box"><div><Code2 size={15}/>实现示意</div><code>{section.code}</code></pre>}{section.callout && <div className={`callout ${section.callout.type}`}><div>{section.callout.type==='warning'?<Zap size={17}/>:section.callout.type==='industry'?<Gauge size={17}/>:<Sparkles size={17}/>}<strong>{section.callout.title}</strong></div><p>{section.callout.text}</p></div>}</div></section>)}
       <div className="takeaway"><span>ONE-LINE TAKEAWAY</span><strong>{lesson.takeaway}</strong></div>
       <div className="lesson-complete"><div>{completed.has(lesson.id)?<CheckCircle2 size={22}/>:<CircleHelp size={22}/>}<span><strong>{completed.has(lesson.id)?'本节已完成':'读完并理解了吗？'}</strong><small>进度会保存在当前浏览器</small></span></div><button className={completed.has(lesson.id)?'secondary-button':'primary-button'} onClick={()=>toggleCompleted(lesson.id)}>{completed.has(lesson.id)?<><RefreshCw size={16}/>标记为未完成</>:<><Check size={17}/>完成本节</>}</button></div>
       <div className="lesson-navigation"><button disabled={!previous} onClick={()=>previous&&openLesson(previous.chapter.id,previous.lesson.id)}><ArrowLeft size={17}/><span><small>上一节</small><strong>{previous?.lesson.title ?? '已是第一节'}</strong></span></button><button disabled={!next} onClick={()=>next&&openLesson(next.chapter.id,next.lesson.id)}><span><small>下一节</small><strong>{next?.lesson.title ?? '已完成全部课程'}</strong></span><ArrowRight size={17}/></button></div>
     </article>
   </div>
+}
+
+function ChapterOrientation({ chapter }: { chapter: Chapter }) {
+  const guide = chapter.guide
+  if (!guide) return null
+  return <section className="chapter-orientation">
+    <div className="orientation-copy"><span>CHAPTER ORIENTATION</span><h2>这一阶段在做什么</h2><p>{guide.plainDefinition}</p><small>{guide.roleInPipeline}</small></div>
+    <div className="orientation-arc">{guide.learningArc.map((item,index)=><div key={item}><span>{index+1}</span><p>{item}</p>{index<guide.learningArc.length-1&&<ChevronRight size={16}/>}</div>)}</div>
+  </section>
+}
+
+function LessonPrimer({ guide }: { guide: LessonGuide }) {
+  return <section className="lesson-primer">
+    <div className="plain-language"><span>先用大白话理解</span><h2>{guide.plain}</h2><div><Sparkles size={17}/><p>{guide.analogy}</p></div></div>
+    <div className="why-learn"><span>为什么这一点重要</span><p>{guide.why}</p></div>
+    <div className="learning-sequence"><span>从输入到结果</span><ol>{guide.steps.map((step,index)=><li key={step.title}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{step.title}</strong><p>{step.detail}</p></div></li>)}</ol></div>
+  </section>
+}
+
+function CodeWalkthroughPanel({ walkthrough }: { walkthrough: CodeWalkthrough }) {
+  return <section className="code-walkthrough">
+    <div className="walkthrough-head"><div><span>CODE WALKTHROUGH</span><h2>{walkthrough.title}</h2></div><strong>{walkthrough.language}</strong></div>
+    <div className="walkthrough-grid"><pre><code>{walkthrough.code}</code></pre><div className="code-notes"><span>读代码时抓住这几点</span><ol>{walkthrough.notes.map((note,index)=><li key={note}><b>{index+1}</b><p>{note}</p></li>)}</ol></div></div>
+  </section>
 }
 
 function Concepts() {
