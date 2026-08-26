@@ -29,7 +29,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--bg); }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--bg); font-size: 16px; line-height: 1.6; }
 button, input, select, textarea { font: inherit; letter-spacing: 0; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
@@ -595,6 +595,222 @@ select:focus, .settings-modal input:focus { border-color: var(--green); box-shad
 .mobile-drawer { width: min(290px, 86vw); height: 100%; padding: 20px 14px; background: var(--sidebar); color: #fff; }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; }
 
+/* Readability scale: keep supporting text compact, but never visually tiny. */
+.brand strong { font-size: 16px; }
+.page-heading p { font-size: 16px; }
+.lesson-lead { font-size: 17px; }
+.brand span,
+.sidebar-progress p,
+.roadmap-node small,
+.mini-flow > div small,
+.outline-lessons small,
+.lesson-complete small,
+.lesson-navigation small,
+.orientation-copy small,
+.lab-result small,
+.resource-links small,
+.search-results small,
+.input-note { font-size: 13px; }
+
+.progress-label,
+.breadcrumb,
+.breadcrumb strong,
+.search-trigger span,
+.top-progress,
+.progress-orbit span,
+.meta-row span,
+.outline-head,
+.outline-chapter-title strong,
+.lesson-meta > span,
+.objective-box strong,
+.callout strong,
+.lesson-complete strong,
+.comparison-table th,
+.filter-bar > span,
+.interview-meta > span:not(.difficulty),
+.chat-message > div:last-child > span,
+.tutor-context li span,
+.paper-main > div span,
+.result-type,
+.search-results strong,
+.security-note p { font-size: 13px; }
+
+.stat-stack span { font-size: 13px; }
+.stat-stack small,
+.mini-flow > div span,
+.quiz-preview span { font-size: 12px; }
+.node-index { font-size: 13px; }
+
+.breadcrumb span,
+kbd,
+.eyebrow,
+.section-kicker,
+.chapter-chip,
+.node-progress,
+.lesson-topline,
+.difficulty,
+.section-number,
+.formula-box figcaption span,
+.code-box > div,
+.takeaway span,
+.orientation-copy > span,
+.plain-language > span,
+.why-learn > span,
+.learning-sequence > span,
+.walkthrough-head span,
+.deep-dive-divider > span,
+.lab-head span,
+.walkthrough-head > strong,
+.code-notes > span,
+.code-notes b,
+.lab-result > div span,
+.pair-versus span,
+.ratio-marker,
+.bound,
+.reward-bars button > span,
+.reward-bars strong,
+.reward-bars small,
+.trajectory-lane > div > span,
+.trajectory-lane small,
+.trajectory-lane b,
+.distribution-bars b,
+.concept-index,
+.concept-detail span,
+.recommendation span,
+.difference-band span,
+.quiz-status,
+.quiz-tags span,
+.options-list button > span,
+.model-answer span,
+.paper-number,
+.freshness-note p { font-size: 12px; }
+
+.primary-button,
+.secondary-button,
+.text-button,
+.inline-search input,
+select,
+.settings-modal input,
+.segmented button,
+.prompt-suggestions button,
+.chat-input textarea,
+.search-input-row input { font-size: 15px; }
+
+.page-heading p,
+.continue-block p,
+.roadmap-node strong,
+.mini-flow > div strong,
+.quick-panel > p,
+.lesson-lead,
+.objective-box ul,
+.knowledge-list li,
+.callout p,
+.orientation-copy p,
+.plain-language > div p,
+.why-learn p,
+.decision-copy p,
+.recommendation p,
+.comparison-table td,
+.difference-band p,
+.options-list button strong,
+.answer-feedback p,
+.result-panel p,
+.answer-summary p,
+.answer-grid ol,
+.answer-grid ul,
+.chat-message p,
+.api-error,
+.tutor-context > p,
+.tutor-context li strong,
+.context-tip p,
+.paper-main p,
+.resource-links strong,
+.search-empty p,
+.empty-state p { font-size: 15px; }
+
+.section-copy > p,
+.formula-box > p,
+.takeaway strong,
+.concept-card > p,
+.concept-detail p,
+.answer-summary p,
+.chat-message p { font-size: 16px; }
+
+.section-copy h2,
+.plain-language h2,
+.deep-dive-divider h2,
+.decision-copy h2,
+.result-panel h2,
+.modal-head h2 { font-size: 24px; }
+.orientation-copy h2,
+.concept-card h2,
+.interview-body h2,
+.tutor-context h2,
+.empty-state h2 { font-size: 20px; }
+.walkthrough-head h2,
+.lab-head h2,
+.difference-band h3,
+.paper-main h2 { font-size: 18px; }
+
+.lesson-dot { width: 22px; height: 22px; font-size: 11px; }
+.difficulty { font-size: 12px !important; }
+.orientation-arc span,
+.learning-sequence li > span,
+.step-lab-item button > span { width: 28px; height: 28px; font-size: 12px; }
+.lesson-navigation strong { font-size: 14px; }
+.outline-lessons button > span:last-child { font-size: 14px; line-height: 1.55; }
+.outline-chapter-title span { font-size: 12px; }
+.formula-box figcaption { font-size: 14px; }
+.formula-render .katex { font-size: 1.22em; }
+.code-box code,
+.walkthrough-grid code { font-size: 14px; line-height: 1.85; }
+.learning-sequence strong { font-size: 14px; }
+.learning-sequence p,
+.code-notes p,
+.lab-result > p,
+.lab-result p { font-size: 14px; }
+.orientation-arc p,
+.lab-segmented button,
+.step-lab-item button strong,
+.token-cell strong,
+.token-cell small,
+.pair-grid > div > span,
+.pair-grid > div > p,
+.lab-control-grid label,
+.lab-control-grid > div,
+.lab-range,
+.margin-compare span,
+.reward-bars button > span,
+.trajectory-lane strong,
+.memory-stack span,
+.distribution-chart > div > span,
+.chart-legend span { font-size: 13px; }
+.token-cell span,
+.lab-metrics span,
+.reward-bars small,
+.trajectory-lane small,
+.distribution-bars b { font-size: 12px; }
+.lab-control-grid strong,
+.lab-range strong,
+.margin-compare strong { font-size: 14px; }
+.lab-result > div strong,
+.lab-metrics strong { font-size: 16px; }
+.token-cell strong { font-size: 14px; }
+.pair-grid > div > strong { font-size: 30px; }
+.memory-stack b { font-size: 13px; }
+.concept-card h2 { margin-top: 20px; }
+.decision-fields label > span,
+.settings-modal label > span,
+.practice-setup label > span { font-size: 13px; }
+.quiz-card h2 { font-size: 22px; }
+.answer-feedback strong { font-size: 14px; }
+.interview-number { font-size: 13px; }
+.think-prompt { font-size: 13px; }
+.paper-main h2 { font-size: 17px; }
+.freshness-note p { line-height: 1.75; }
+.page-heading p { font-size: 16px; }
+.lesson-lead { font-size: 17px; }
+
 @media (max-width: 1180px) {
   .topbar { grid-template-columns: 1fr minmax(240px,360px) auto; padding: 0 24px; }
   .dashboard-summary { grid-template-columns: 150px 1fr; gap: 28px; }
@@ -667,7 +883,7 @@ select:focus, .settings-modal input:focus { border-color: var(--green); box-shad
   .section-copy h2 { font-size: 20px; }
   .formula-render { padding: 20px 14px 19px; text-align: left; }
   .formula-render .katex-display { min-width: max-content; }
-  .formula-render .katex { font-size: .92em; }
+  .formula-render .katex { font-size: 1.08em; }
   .lesson-complete { align-items: flex-start; flex-direction: column; }
   .lesson-complete .primary-button, .lesson-complete .secondary-button { width: 100%; }
   .lesson-navigation { grid-template-columns: 1fr; }
@@ -678,14 +894,14 @@ select:focus, .settings-modal input:focus { border-color: var(--green); box-shad
   .orientation-arc > div:last-child { border-bottom: 0; }
   .orientation-arc svg { transform: rotate(90deg); }
   .plain-language { padding-top: 23px; }
-  .plain-language h2 { font-size: 19px; }
+  .plain-language h2 { font-size: 22px; }
   .why-learn { grid-template-columns: 1fr; gap: 9px; }
   .learning-sequence ol { grid-template-columns: 1fr; gap: 17px; }
   .learning-sequence li::after { display: none; }
   .code-walkthrough { margin-bottom: 39px; }
   .walkthrough-head { align-items: flex-start; }
   .walkthrough-grid pre { padding: 17px 14px; }
-  .walkthrough-grid code { font-size: 10px; }
+  .walkthrough-grid code { font-size: 14px; }
   .code-notes { padding: 17px 14px; }
   .deep-dive-divider { margin-top: 43px; }
   .step-lab-track { align-items: stretch; }
@@ -705,7 +921,7 @@ select:focus, .settings-modal input:focus { border-color: var(--green); box-shad
   .trajectory-lane { grid-template-columns: repeat(2, 1fr); gap: 25px 0; padding-inline: 14px; }
   .trajectory-lane > div:nth-child(2) svg { display: none; }
   .memory-stack { margin-inline: 14px; }
-  .memory-stack span { font-size: 8px; }
+  .memory-stack span { font-size: 11px; }
   .distribution-chart, .lab-range { padding-inline: 14px; }
   .chart-legend { padding-left: 74px; }
   .concept-grid { grid-template-columns: 1fr; }
@@ -734,7 +950,7 @@ select:focus, .settings-modal input:focus { border-color: var(--green); box-shad
   .prompt-suggestions { grid-template-columns: 1fr; }
   .resource-stack { grid-template-columns: 1fr; gap: 15px; }
   .paper-row { grid-template-columns: 35px 1fr 20px; gap: 8px; padding: 18px 4px; }
-  .paper-main h2 { font-size: 13px; }
+  .paper-main h2 { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
