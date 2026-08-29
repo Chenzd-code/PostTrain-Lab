@@ -234,6 +234,18 @@ const coreChapters: Chapter[] = [
     subtitle: '多轮轨迹、工具调用、POMDP、信用分配与训练—执行解耦', color: 'orange',
     lessons: [
       {
+        id: 'agentic-harness-boundary', title: '先判断：该改 Harness，还是训练策略', duration: 38, difficulty: '入门',
+        summary: '在进入强化学习前，先把模型能力问题、运行时设计问题和环境反馈问题分开。',
+        objectives: ['区分 policy 与 harness 优化', '建立强 Agent baseline', '设计可归因的二维消融'],
+        sections: [
+          { title: '同一个失败可能来自三层', paragraphs: ['模型可能不会选择正确动作，这是 policy 问题；工具描述含糊、上下文漏掉关键状态或终止条件错误，这是 Harness 问题；环境无法重置、observation 不完整或 verifier 错判，这是 environment 问题。三层同时变化时，即使成功率提升也无法知道学到了什么。'] },
+          { title: '先把 Harness 变成稳定实验台', paragraphs: ['固定任务契约、工具 schema、权限、上下文组装、错误协议、终止和 trace；用 SFT 或强基础模型跑出可重复 baseline。若错误能通过确定性检查、工具重构或状态修复解决，优先改 Harness，因为它更可控、更新快且不需要改变模型权重。'] },
+          { title: '什么时候才值得 Agentic RL', paragraphs: ['当相同 Harness 下，模型仍无法从多步反馈中稳定选择策略；存在可探索的多条动作路径；终局或过程结果可可靠验证；在线采样成本与风险可承受时，RL 才可能带来超出模仿的收益。没有可重置环境和可信 reward 时，升级算法只会放大噪声。'] },
+          { title: '用二维消融做归因', paragraphs: ['固定模型比较 Harness A/B，固定 Harness 比较 SFT/RL policy，再运行二乘二 factorial experiment 检查交互效应。报告等任务、等工具、等推理预算下的 success、cost、latency、安全和轨迹质量，而不是只展示最终最佳组合。'], callout: { type: 'industry', title: '项目起点', text: 'Agentic RL 的第一项实验通常不是训练，而是证明强 Harness + 强 SFT baseline 仍存在可由探索解决的策略瓶颈。' } },
+        ],
+        takeaway: '先把运行时和环境做成稳定坐标系，才能知道 RL 真正改变了策略。',
+      },
+      {
         id: 'agent-mdp', title: '从单轮生成到 POMDP', duration: 34, difficulty: '进阶',
         summary: '把 Agent 视为在部分可观察环境中执行多步决策的策略。',
         objectives: ['定义状态、观察、动作与奖励', '区分 LLM-RL 与 Agentic RL', '识别环境非平稳性'],
@@ -243,6 +255,18 @@ const coreChapters: Chapter[] = [
           { title: '环境是训练数据生成器', paragraphs: ['网页、代码仓库、数据库、游戏或企业系统必须可重置、可并发、可观测、结果可判定。环境版本变化会让 reward 非平稳。'], callout: { type: 'industry', title: '先造环境', text: 'Agentic RL 项目最难的资产往往不是算法，而是高保真、可扩展、无泄漏的任务环境和验证器。' } },
         ],
         takeaway: 'Agentic RL 的跃迁是从“优化一段文本”变为“优化对环境产生后果的轨迹”。',
+      },
+      {
+        id: 'agent-environment', title: '环境工程：Reset、Observation、Verifier 与隔离', duration: 44, difficulty: '硬核',
+        summary: '把网页、代码仓库或数据库变成可并发、可重置、可判定且不泄漏答案的训练环境。',
+        objectives: ['设计 reset/step 接口', '区分环境失败与策略失败', '构建版本化 verifier 与隐藏测试'],
+        sections: [
+          { title: '环境定义策略真正能学什么', paragraphs: ['任务分布、初始状态、可见 observation、动作执行器、transition、终止与 reward 共同定义训练问题。若 observation 泄漏隐藏答案，模型会学捷径；若工具输出截断了关键证据，最优策略也无法成功；若 reset 不干净，轨迹之间会相互污染。'] },
+          { title: 'Reset 必须可复现也要有变化', paragraphs: ['每条 rollout 在隔离快照、容器、数据库副本或浏览器 profile 中启动，记录 seed、fixture 与环境版本。可复现不等于每次完全相同：训练可对页面布局、数据值、错误注入和任务难度做受控随机化，评测则锁定隐藏分布。'] },
+          { title: 'Verifier 要独立于 Agent 可见上下文', paragraphs: ['代码任务用隐藏测试和最终 diff，数据库任务用结果与约束，网页任务用目标状态与安全规则。Verifier 的 gold state、测试细节和 reward 分解不能直接暴露给策略。将 infrastructure_error、invalid_action、unsafe_action、task_failure 与 success 分开，避免把平台故障训练成负样本。'] },
+          { title: '训练沙盒不能直连生产副作用', paragraphs: ['真实生产系统通常不可重置，也包含隐私、财务和外部沟通风险。使用仿真服务、录制回放、合成账户或受控 staging；对 unavoidable external API 设只读、配额、幂等与人工门禁。环境变化必须版本化，否则不同批次 reward 不可比较。'], callout: { type: 'warning', title: '环境就是数据生成器', text: '环境 bug 会批量制造带错误标签的轨迹，影响通常比单条 SFT 脏数据更隐蔽。' } },
+        ],
+        takeaway: 'Agentic RL 的高价值资产是可重置、可观测、可验证且隔离的环境，而不仅是一条 loss 公式。',
       },
       {
         id: 'agent-credit', title: '长程信用分配与轨迹学习', duration: 40, difficulty: '硬核',
@@ -371,6 +395,14 @@ export const concepts: Concept[] = [
   { term: 'MCP', definition: '连接 AI Host 与外部 prompts、resources、tools 的开放协议。', detail: 'MCP 解决互操作，不替代 Host/Harness 对上下文、用户同意、权限和安全的责任。', interview: 'MCP 的 Host、Client、Server 各负责什么？' },
   { term: 'Environment', definition: 'Agent 行动并接收 observation/reward 的外部状态与执行空间。', detail: '训练环境需可重置、可并发、版本化、隔离且有可靠 verifier；真实生产系统通常不能直接作为训练沙盒。', interview: '高保真 Agentic RL 环境最难的部分是什么？' },
   { term: 'Idempotency', definition: '同一写操作重复执行仍只产生一次预期副作用。', detail: '长任务重试、网络超时和人工恢复都可能重复提交；Harness 应使用 idempotency key 与结果存储。', interview: '工具已部分成功但客户端超时时怎么恢复？' },
+  { term: 'Task Spec', definition: '把目标、约束、done-when、能力和预算写成可执行的运行契约。', detail: '成功标准应与 verifier 同源；模型停止、预算耗尽和业务成功是不同状态。', interview: '如何为代码修复 Agent 写 Task Spec？' },
+  { term: 'Tool Projection', definition: '从运行时全部工具中，按用户、任务、阶段与风险生成的本轮可见动作空间。', detail: '渐进披露降低 token、误选和攻击面，但工具被发现后仍需重新授权。', interview: '为什么 Tool Registry 不能直接全量传给模型？' },
+  { term: 'Durable State', definition: '保存在上下文窗口之外、可跨轮和重启寻址的任务事实、事件与 artifact。', detail: '只有关键事实已外置，context compaction 才是换表示而不是遗忘。', interview: 'Working context 与 durable state 如何协作？' },
+  { term: 'Context Recycling', definition: '按可恢复性逐级外置、裁剪和压缩旧上下文的策略。', detail: '优先外置长输出和裁剪可重建内容，最后才做全局有损 compaction。', interview: '如何设计五级上下文回收？' },
+  { term: 'Prompt Cache', definition: '复用相同请求前缀的预填充计算，以降低延迟或成本。', detail: '它不是长期记忆；稳定工具与系统说明适合放前缀，动态状态放后面，并记录实际命中。', interview: 'Compaction 为什么可能降低 prompt cache hit？' },
+  { term: 'Policy vs Sandbox', definition: 'Policy 决定一次动作该不该执行，Sandbox 限制执行后最多能影响什么。', detail: 'allow/ask/deny 是语义决策；文件、网络、进程和资源隔离是物理边界。', interview: '为什么用户批准动作后仍需 Sandbox？' },
+  { term: 'Forward Progress', definition: 'Agent 每轮应产生可验证状态变化，而不是重复调用、振荡或只增加文本。', detail: 'Harness 可比较 state delta、调用指纹、错误序列和未完成目标进行 stuck detection。', interview: 'max turns 与无进展检测有什么区别？' },
+  { term: 'Skill', definition: '可按需加载、教 Agent 完成一类任务的方法、流程和检查清单。', detail: 'Skill 不直接产生副作用，可声明 Tool/MCP 依赖；Harness 负责加载、授权和执行边界。', interview: 'Tool、MCP、Skill 三者如何组合？' },
   { term: 'Sequence-level ratio', definition: '将整段回答的策略变化汇总为一个 importance ratio。', detail: 'GSPO 等方法用 sequence 粒度裁剪，与 outcome reward 更一致，但弱化 token 级差异。', interview: 'Token-level 与 sequence-level clipping 各有什么偏差—方差取舍？' },
   { term: 'Knowledge distillation', definition: '让学生模型匹配教师的 logits、序列或行为分布。', detail: '可分为 logit KD、sequence KD、reasoning distillation 和 on-policy distillation。', interview: '为什么 sequence KD 不能完整复制教师能力？' },
   { term: 'Serving parity', definition: '训练与最终推理引擎在 tokenizer、模板、采样和 logits 语义上的一致性。', detail: '量化、adapter merge、stop token 或 kernel 差异都可能让服务产物偏离 trainer checkpoint。', interview: '最终模型上线前应如何验证 parity？' },

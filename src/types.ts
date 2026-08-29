@@ -30,7 +30,12 @@ export type LearningVisual =
   | 'dpo-margin'
   | 'grpo-group'
   | 'agent-loop'
+  | 'model-protocol'
+  | 'intent-gate'
   | 'harness-stack'
+  | 'harness-map'
+  | 'context-recycling'
+  | 'tool-mcp-skill'
   | 'trajectory-credit'
   | 'eval-stack'
   | 'memory-budget'
@@ -61,6 +66,8 @@ export interface ChapterGuide {
   plainDefinition: string
   roleInPipeline: string
   learningArc: string[]
+  prerequisites?: string[]
+  readingAdvice?: string
 }
 
 export interface Lesson {

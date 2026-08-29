@@ -43,17 +43,47 @@ const stepVisuals: Partial<Record<LearningVisualKind, {
       { title: '更新或终止', description: '观察写回 state；达到成功、失败或预算条件时停止。', output: 'next state' },
     ],
   },
-  'harness-stack': {
-    eyebrow: 'RUNTIME STACK',
-    title: 'Harness 七层责任边界',
+  'model-protocol': {
+    eyebrow: 'MODEL PROTOCOL',
+    title: '一次工具回合如何跨过模型 API',
     steps: [
-      { title: 'Task & Identity', description: '绑定用户、租户、目标、预算和运行版本。', output: 'run contract' },
-      { title: 'Context', description: '从指令、状态、记忆和检索中组装当前工作集。', output: 'model input' },
-      { title: 'Model', description: '在允许的动作空间中提出下一步决策。', output: 'typed decision' },
-      { title: 'Policy', description: '用确定性规则检查权限、审批与风险边界。', output: 'allow / deny / approve' },
-      { title: 'Execution', description: '在沙箱、超时、重试和幂等控制下执行工具。', output: 'tool result' },
-      { title: 'State', description: '原子持久化事件、checkpoint 和 pending action。', output: 'resumable run' },
-      { title: 'Observability', description: 'Tracing、Evals 和传感器为复盘与控制提供证据。', output: 'trace + metrics' },
+      { title: '发送请求', description: 'Harness 发送 instructions、input/history、tools 和预算；模型只接收本次可见上下文。', output: 'model request' },
+      { title: '返回意图', description: '模型返回文本、结构化输出或带 call id 的 function/tool call。', output: 'response item' },
+      { title: '完整组装', description: '流式 arguments 按 call id 累积，等调用块结束后才解析与校验。', output: 'validated proposal' },
+      { title: '执行工具', description: 'Harness 经过权限、Hook 与沙箱后执行真实能力。', output: 'tool result' },
+      { title: '关联下一轮', description: '结果用相同 call id 回填，并通过历史或响应标识衔接下一次调用。', output: 'next model input' },
+    ],
+  },
+  'intent-gate': {
+    eyebrow: 'EFFECT GATES',
+    title: '模型意图变成真实效果前的五道闸门',
+    steps: [
+      { title: 'Locate', description: '确认工具存在、版本正确，而且当前回合确实对模型可见。', output: 'registered tool' },
+      { title: 'Validate', description: '解析完整参数，检查 schema、业务范围与 call/result 协议。', output: 'typed call' },
+      { title: 'Hook', description: '运行项目检查、参数变换、dry-run 或额外 verifier。', output: 'checked call' },
+      { title: 'Authorize', description: '策略依据用户、风险和作用域返回 allow、ask 或 deny。', output: 'policy decision' },
+      { title: 'Execute', description: '只在通过前述闸门后进入受限执行器，并产生结构化 observation。', output: 'controlled effect' },
+    ],
+  },
+  'harness-stack': {
+    eyebrow: 'ENVIRONMENT LOOP',
+    title: 'Agentic RL 环境的一次可训练回合',
+    steps: [
+      { title: 'Reset', description: '从版本化快照创建隔离世界，绑定 task、seed 和预算。', output: 'initial observation' },
+      { title: 'Policy Action', description: '当前策略依据可见历史提出工具调用、消息或停止动作。', output: 'typed action' },
+      { title: 'Sandbox Step', description: '环境校验并执行动作，更新隐藏世界状态。', output: 'state transition' },
+      { title: 'Observe & Verify', description: '返回有限 observation，由独立 verifier 计算奖励与终止。', output: 'reward + done' },
+      { title: 'Record', description: '保存完整轨迹、policy/env/reward 版本与故障类型。', output: 'trainable trajectory' },
+    ],
+  },
+  'tool-mcp-skill': {
+    eyebrow: 'CAPABILITY STACK',
+    title: 'Tool、MCP、Skill 如何在 Harness 中组合',
+    steps: [
+      { title: 'Skill 教方法', description: '按任务加载流程、检查清单和依赖说明，但它本身不执行副作用。', output: 'working instructions' },
+      { title: 'MCP 连接能力', description: 'Host 通过 Client 从 Server 发现 prompts、resources 与 tools。', output: 'external capability catalog' },
+      { title: 'Registry 做投影', description: '本地与远端 Tool 统一注册，再按用户、任务和风险筛选。', output: 'visible tools' },
+      { title: 'Harness 执行', description: '模型只提出 Tool 调用；Harness 仍负责校验、授权、沙箱和追踪。', output: 'controlled result' },
     ],
   },
   'eval-stack': {
@@ -77,8 +107,60 @@ export function LearningVisual({ kind }: { kind: LearningVisualKind }) {
   if (kind === 'trajectory-credit') return <TrajectoryLab />
   if (kind === 'memory-budget') return <MemoryLab />
   if (kind === 'distillation') return <DistillationLab />
+  if (kind === 'harness-map') return <HarnessMapLab />
+  if (kind === 'context-recycling') return <ContextRecyclingLab />
   const config = stepVisuals[kind]
   return config ? <StepLab config={config} /> : null
+}
+
+function HarnessMapLab() {
+  const layers: Array<{ name: string; description: string; nodes: Array<[string, string]> }> = [
+    { name: '任务前 · Contract', description: '先定义成功、动作空间与硬边界。', nodes: [
+      ['Task Spec', '目标、done-when、预算与子任务合同'],
+      ['Tool Registry', '运行时能力与本轮模型可见投影'],
+      ['Policy & Sandbox', 'allow/ask/deny 与物理影响半径'],
+    ] },
+    { name: '运行中 · Runtime', description: '持续推进决策、状态、恢复与协作。', nodes: [
+      ['Agent Loop', '上下文、模型、工具与观察的闭环'],
+      ['State & Context', '工作集、持久事实与多轮重建'],
+      ['Error & Recovery', '结构化错误、重试和崩溃恢复'],
+      ['Termination & Human', '四类退出、暂停、审批与澄清'],
+      ['Orchestration', '上下文隔离、并发与结果回传'],
+    ] },
+    { name: '运行后 · Feedback', description: '用证据定位问题并修改下一版 Harness。', nodes: [
+      ['Tracing & Eval', '轨迹、版本、成本、结果与组件归因'],
+    ] },
+  ]
+  const [active, setActive] = useState('Agent Loop')
+  const selected = layers.flatMap(layer => layer.nodes).find(([name]) => name === active) ?? layers[0].nodes[0]
+  return <LabShell eyebrow="HARNESS MAP" title="点击九大组件，查看它在系统中的责任">
+    <div className="harness-map">
+      {layers.map(layer => <section className="harness-band" key={layer.name}>
+        <div><strong>{layer.name}</strong><p>{layer.description}</p></div>
+        <div>{layer.nodes.map(([name, description]) => <button className={active === name ? 'active' : ''} onClick={() => setActive(name)} key={name} aria-pressed={active === name}><span>{name}</span><small>{description}</small></button>)}</div>
+      </section>)}
+    </div>
+    <div className="lab-result" aria-live="polite"><div><span>ACTIVE COMPONENT</span><strong>{selected[0]}</strong></div><p>{selected[1]}。它不是孤立层，而会通过 Agent Loop 与状态、终止和 Trace 形成闭环。</p></div>
+  </LabShell>
+}
+
+function ContextRecyclingLab() {
+  const strategies = [
+    { name: '外置长输出', loss: '近乎无损', detail: '完整 artifact 外置，工作上下文只留摘要、URI、hash 与读取方法。' },
+    { name: '裁剪可重建历史', loss: '低损', detail: '删除重复日志与已被结构化 state 覆盖的内容，原事件仍可回放。' },
+    { name: '旧结果微压缩', loss: '轻度有损', detail: '把早期 tool result 换成事实摘要，并保留原始 artifact 引用。' },
+    { name: '局部上下文折叠', loss: '中度有损', detail: '仅折叠已完成阶段，保留当前目标、约束与 pending action。' },
+    { name: '全局 Compaction', loss: '最高损失', detail: '生成可执行交接摘要并重建上下文，只在高压力下使用。' },
+  ]
+  const [pressure, setPressure] = useState(1)
+  const strategy = strategies[pressure - 1]
+  return <LabShell eyebrow="CONTEXT RECYCLING" title="提高上下文压力，观察回收策略如何升级">
+    <label className="lab-range"><span>上下文压力 <strong>{pressure} / 5</strong></span><input type="range" min="1" max="5" step="1" value={pressure} onChange={event => setPressure(Number(event.target.value))} /></label>
+    <div className="recycling-ladder">
+      {strategies.map((item, index) => <button key={item.name} className={index + 1 === pressure ? 'active' : index + 1 < pressure ? 'past' : ''} onClick={() => setPressure(index + 1)} aria-pressed={index + 1 === pressure}><span>{index + 1}</span><strong>{item.name}</strong><small>{item.loss}</small></button>)}
+    </div>
+    <div className="lab-result" aria-live="polite"><div><span>CURRENT STRATEGY</span><strong>{strategy.name}</strong></div><p>{strategy.detail} 任何截断都应与持久化和取回设计一起记录。</p></div>
+  </LabShell>
 }
 
 function LabShell({ eyebrow, title, children }: {
